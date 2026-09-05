@@ -5,7 +5,7 @@ from xml.etree import ElementTree as ET
 from email.utils import parsedate_to_datetime
 from datetime import datetime,timezone
 from pathlib import Path
-from html import escape
+from html import escape,unescape
 import re
 
 FEEDS=[
@@ -13,6 +13,10 @@ FEEDS=[
  ('Sitges News EN','https://www.google.co.uk/alerts/feeds/13810406102390053383/16777662434324723099'),
  ('Sitges News DE','https://www.google.co.uk/alerts/feeds/13810406102390053383/8458409556936715825'),
  ('Sitges News FR','https://www.google.co.uk/alerts/feeds/13810406102390053383/17911084200607657881')]
+
+def clean_title(s):
+ s=unescape(re.sub(r'<[^>]+>',' ',s));s=re.sub(r'#[\wÀ-ÿ-]+',' ',s);s=re.sub(r'[|•◆▪■▶►★☆→←]+',' ',s);s=re.sub(r'[\U0001F000-\U0001FAFF\u2600-\u27BF]',' ',s);s=re.sub(r'\s+',' ',s).strip(' -–—:;,.!?')
+ return s
 
 def text(node,names):
  for name in names:
@@ -29,7 +33,7 @@ def read_feed(label,url):
  nodes=root.findall('.//item')
  if not nodes:nodes=root.findall('.//{http://www.w3.org/2005/Atom}entry')
  for n in nodes[:12]:
-  title=text(n,['title','{http://www.w3.org/2005/Atom}title']);link=text(n,['link'])
+  title=clean_title(text(n,['title','{http://www.w3.org/2005/Atom}title']));link=text(n,['link'])
   if not link:
    a=n.find('{http://www.w3.org/2005/Atom}link');link=a.attrib.get('href','') if a is not None else ''
   dt=text(n,['pubDate','date','{http://www.w3.org/2005/Atom}published','{http://www.w3.org/2005/Atom}updated'])
