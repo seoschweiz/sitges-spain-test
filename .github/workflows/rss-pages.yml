@@ -1,4 +1,5 @@
 name: Update Sitges RSS News
+# Title-cleanup deployment trigger
 on:
   push:
     paths:
