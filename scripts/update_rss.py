@@ -53,8 +53,11 @@ clean=clean[:30]
 def card(x):
  d='' if x['date'].year==1970 else x['date'].strftime('%d %B %Y')
  return f'''<article class="card"><span class="eyebrow">{escape(x['source'])}</span><p class="meta">{d}</p><h2><a href="{escape(x['url'],quote=True)}" target="_blank" rel="noopener noreferrer">{escape(x['title'])}</a></h2></article>'''
+def home_card(x):
+ d='' if x['date'].year==1970 else x['date'].strftime('%d %B %Y')
+ return f'''<article class="news-card"><span class="eyebrow">{escape(x['source'])}</span><p class="meta">{d}</p><h3><a href="{escape(x['url'],quote=True)}" target="_blank" rel="noopener noreferrer">{escape(x['title'])}</a></h3></article>'''
 full='<div class="grid">'+''.join(card(x) for x in clean)+'</div>' if clean else '<p>No current external headlines are available.</p>'
-latest='<section><h2>Latest Sitges News</h2><div class="grid">'+''.join(card(x) for x in clean[:6])+'</div><p><a href="sitges-news/index.html">View all current headlines</a></p></section>' if clean else '<section><h2>Latest Sitges News</h2><p>No current external headlines are available.</p></section>'
+latest='<section class="section-block news-section"><div class="section-heading"><div><p class="kicker dark">Updated headlines</p><h2>Latest Sitges news</h2></div><a class="text-link" href="sitges-news/index.html">All current headlines <span>→</span></a></div><div class="news-grid">'+''.join(home_card(x) for x in clean[:6])+'</div></section>' if clean else '<section class="section-block news-section"><div class="section-heading"><div><p class="kicker dark">Updated headlines</p><h2>Latest Sitges news</h2></div></div><p>No current external headlines are available.</p></section>'
 news=Path('sitges-news/index.html');s=news.read_text();s=re.sub(r'<!-- NEWS_ITEMS_START -->.*?<!-- NEWS_ITEMS_END -->','<!-- NEWS_ITEMS_START -->'+full+'<!-- NEWS_ITEMS_END -->',s,flags=re.S);news.write_text(s)
 home=Path('index.html');s=home.read_text();s=re.sub(r'<!-- RSS_START -->.*?<!-- RSS_END -->','<!-- RSS_START -->'+latest+'<!-- RSS_END -->',s,flags=re.S);home.write_text(s)
 print(f'Wrote {len(clean)} headlines')
